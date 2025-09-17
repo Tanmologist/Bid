@@ -27,5 +27,9 @@ ensureRemoteEvent("MoneyChangeRemote")
 ensureRemoteEvent("SaveDataRemote")
 ensureRemoteEvent("FlowDataRemote")
 ensureRemoteEvent("CharacterSelectRemote")
+ensureRemoteEvent("weaponRemote")
+ensureRemoteEvent("hitregRemote")
+ensureRemoteEvent("charRemote")
+ensureRemoteEvent("suppressRemote")
 
 -- Add new remote names above; other scripts must ONLY WaitForChild.
