@@ -8,26 +8,34 @@
         "ReplicatedStorage": {
             "$className": "ReplicatedStorage",
             "$ignoreUnknownInstances": true,
-            
-            "Library": {
-                "$className": "Folder",
-                "$path": "Library"
-            },
 
             "Modules": {
                 "$className": "Folder",
                 
+                "factionKnowledgeHandler": { "$path": "Modules/factionKnowledgeHandler.luau" },
+                "README": { "$path": "Modules/README.luau" },
                 "CameraShakeInstance": { "$path": "Modules/CameraShake/CameraShakeInstance.luau" },
                 "CameraShakePresets": { "$path": "Modules/CameraShake/CameraShakePresets.luau" },
                 "CameraShaker": { "$path": "Modules/CameraShake/CameraShaker.luau" },
-                "characterHandlerLocal": { "$path": "Modules/CharacterControllers/characterHandlerLocal.luau" },
-                "characterHandlerServer": { "$path": "Modules/CharacterControllers/characterHandlerServer.luau" }
+                "cameraHandler": { "$path": "Modules/CharacterHandlers/cameraHandler.luau" },
+                "characterHandlerLocal": { "$path": "Modules/CharacterHandlers/characterHandlerLocal.luau" },
+                "characterHandlerServer": { "$path": "Modules/CharacterHandlers/characterHandlerServer.luau" },
+                "interactHandler": { "$path": "Modules/CharacterHandlers/interactHandler.luau" },
+                "inventoryHandlerLocal": { "$path": "Modules/CharacterHandlers/inventoryHandlerLocal.luau" },
+                "damageHandler": { "$path": "Modules/CharacterHandlers/healthHandlers/damageHandler.luau" },
+                "healthHandler": { "$path": "Modules/CharacterHandlers/healthHandlers/healthHandler.luau" },
+                "statusEffects": { "$path": "Modules/CharacterHandlers/healthHandlers/statusEffects.luau" },
+                "ProjectileBase": { "$path": "Modules/WeaponHandlers/ProjectileBase.luau" },
+                "ProjectileHandler": { "$path": "Modules/WeaponHandlers/ProjectileHandler.luau" },
+                "sprintModule": { "$path": "Modules/WeaponHandlers/sprintModule.luau" },
+                "weaponHandlerLocal": { "$path": "Modules/WeaponHandlers/weaponHandlerLocal.luau" }
             }
         },
 
         "ServerScriptService": {
             "$className": "ServerScriptService",
             "$ignoreUnknownInstances": true,
+            "$path": "ServerScriptService",
 
             "Server": {
                 "$className": "Folder",
