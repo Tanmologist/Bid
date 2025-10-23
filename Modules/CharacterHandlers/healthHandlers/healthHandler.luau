@@ -289,6 +289,7 @@ function handler.setup(charObj)
 	end
 	
 	function healthStats.update(dt)
+		--update the delay timers for UI
 		if healthStats.damageTimer - dt <= 0 then
 			healthStats.damageTimer = 0
 			
@@ -312,24 +313,25 @@ function handler.setup(charObj)
 		updateHealthBar()
 		updateStatusEffectUI()
 		
+		--update the status effects
 		for effectName, effect in healthStats.statusEffectList do
 			effect.duration -= dt
-			if effect.duration <= 0 then
+			if effect.duration <= 0 then --end status effects when their duration is depleted
 				effect:stop(charObj,healthStats)
 				effect = nil
 				healthStats.statusEffectList[effectName] = nil
 				
 				local effectIcon = healthUI.statusEffects:FindFirstChild(effectName) or nil
 				if effectIcon then effectIcon:Destroy() end
-			else
+			else --update status effects
 				effect:update(dt)
 			end
 		end
 		
-		healthStats.heal()
+		healthStats.heal() --check if healing conditions are met
 	end
 	
-	function healthStats.updateCFrame(dt)
+	function healthStats.updateCFrame(dt) --update healthbar's dynamic effect
 		local mouseDelta = uis:GetMouseDelta()
 		swaySpring:add(Vector3.new(-mouseDelta.X/200,mouseDelta.Y/100,0))
 		local swayOffset = swaySpring:update(dt)

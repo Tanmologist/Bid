@@ -87,12 +87,11 @@ if rs:IsStudio() then
 		plr.CharacterAdded:Connect(function(char)
 			charRemote:FireClient(plr,"loadCharacter")
 			removeAccessories(char)
-
-			task.wait(1)
-			charRemote:FireClient(plr,"loadKit")
 		end)
 	end)
-	
+
+
+	--wait til client have finished running 
 	charRemote.OnServerEvent:Connect(function(plr,event,param1,param2)
 		if event == "loadKit" then --equivalent to spawn
 			loadKit(plr,"TEST")

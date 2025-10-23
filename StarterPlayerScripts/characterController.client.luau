@@ -22,8 +22,8 @@ local charObject --Note that I use camel casing, this would be prefered as to di
 local charInventory
 local healthStatus
 
-runService.Heartbeat:Connect(function(dt)
-	if charObject then
+runService.Heartbeat:Connect(function(dt) --update the minor functions of charObj
+	if charObject then 
 		charObject.movement(dt)
 		charObject.dash(dt)
 		charObject.interactSubject = interactHandler.checkInteract(charObject) --check if character can interact
@@ -39,8 +39,8 @@ runService.Heartbeat:Connect(function(dt)
 	end
 end)
 
-runService:BindToRenderStep("characterUpdate",200,function(dt)
-	if charObject then 
+runService:BindToRenderStep("characterUpdate",200,function(dt) --update cframe related functions of charObj
+	if charObject then
 		charObject.update(dt)
 		healthStatus.update(dt)
 		if healthStatus.healthCurrent == 0 then
@@ -50,38 +50,38 @@ runService:BindToRenderStep("characterUpdate",200,function(dt)
 	end
 end)
 
-uis.InputBegan:Connect(function(input,gameProcessedEvent)
+uis.InputBegan:Connect(function(input,gameProcessedEvent) --equip tools from the goober inventory
 	if charObject then
 		charInventory.equipTools(input.KeyCode)
 		charObject.gameProcessedEvent = gameProcessedEvent
 	end
 end)
 
-local function handleEvent(action,param1,param2,sender)
-	if action == "changeCharObj" then
+local function handleEvent(action,param1,param2,sender) --garbles
+	if action == "changeCharObj" then --mostly debugging function
 		charObject[param1] = param2
-	elseif action == "changeHealthStatus" then
+	elseif action == "changeHealthStatus" then --mostly a debugging function, yes this will compromise certain stuff to hackers but it's roblox who cares
 		healthStatus[param1] = param2
-	elseif action == "takeDamage" then
+	elseif action == "takeDamage" then --use the health system's damage system
 		healthStatus.takeDamage(param1,param2)	
-	elseif action == "applyStatus" then
+	elseif action == "applyStatus" then --apply status effects, buffs, debuffs, etc
 		healthStatus.applyStatus(param1)
-	elseif action == "removeStatus" then
+	elseif action == "removeStatus" then --remove a status effect early (like when using a bandage)
 		healthStatus.removeStatus(param1)
-	elseif action == "giveIfak" then
+	elseif action == "giveIfak" then --self explanatory
 		if not param1 then param1 = 1 end
-		healthStatus.ifakUses = math.min(healthStatus.ifakUses+param1,healthStatus.ifakUsesMax)
+		healthStatus.ifakUses = math.min(healthStatus.ifakUses+param1,healthStatus.ifakUsesMax) --cuz is arcade game healthkits are stored like "ammo"
 		if sender then sender:FireServer("success") end
-	elseif action == "addHealth" then
+	elseif action == "addHealth" then --self explanatory
 		if not param1 then param1 = 100 end
 		healthStatus.healthCurrent = math.clamp(healthStatus.healthCurrent+param1,0,healthStatus.healthCap)
-		healthStatus.applyStatus("HealUp")
+		healthStatus.applyStatus("HealUp") --this status is literally a screen effect. A lot of stuff use this bypass cuz im lazy.
 		if sender then sender:FireServer("success") end
-	elseif action == "addHealthCap" then
+	elseif action == "addHealthCap" then --there's health cap, and healthmax, and health. Healthcap determines the max healHP before player resets their health status.
 		if not param1 then param1 = 100 end
 		healthStatus.healthCap = math.clamp(healthStatus.healthCurrent+param1,0,healthStatus.healthMax)
 		if sender then sender:FireServer("success") end
-	elseif action == "giveArmor" then
+	elseif action == "giveArmor" then --self explanatory
 		if healthStatus.armorCurrent < healthStatus.armorMax and sender then
 			sender:FireServer("success")
 			healthStatus.applyStatus("UpArmor")
@@ -89,42 +89,42 @@ local function handleEvent(action,param1,param2,sender)
 		
 		if param1 then
 			healthStatus.armorCurrent = math.clamp(healthStatus.armorCurrent+param1,0,healthStatus.armorMax)
-		else
+		else --assume "give max amor" when no value is specified
 			healthStatus.armorCurrent = healthStatus.armorMax
 		end
 	elseif action == "giveAmmo" then
-		if not charInventory[param1.."Ammo"] then
+		if not charInventory[param1.."Ammo"] then --stuff
 			print(param1.."Ammo does not exist.")
 		else
-			local ammo = charInventory[param1.."Ammo"]
+			local ammo = charInventory[param1.."Ammo"] --more stuff
 			local ammoMax = charInventory[param1.."Ammo".."Max"]
-			if ammo < ammoMax then
+			if ammo < ammoMax then --self explanatory
 				charInventory[param1.."Ammo"] = math.clamp(ammo+param2,0,ammoMax)
 				if sender then sender:FireServer("success") end
 			end
 		end
-	elseif action == "setAmmo" then
+	elseif action == "setAmmo" then --self explanatory
 		if not charInventory[param1] then
 			print(param1.." does not exist.")
 		end
 		charInventory[param1] = param2
-	elseif action == "setEquipment" then
+	elseif action == "setEquipment" then --self explanatory, there's also two utility slots but it's unfinished as of now
 		if param1 == "primary" then
 			charInventory.setPrimary(param2)
 		elseif param1 == "secondary" then
 			charInventory.setSecondary(param2)
 		end
-	elseif action == "changeCharSettings" then
+	elseif action == "changeCharSettings" then --redundant function for downwards compatibility because i don't remember all the places that used this
 		charObject.setStats(param1)
-	elseif action == "changeHealthSettings" then
+	elseif action == "changeHealthSettings" then --debugging function, mostly
 		healthStatus.setStats(param1)
-	elseif action == "examine" then
+	elseif action == "examine" then --picking up stuff with one hand
 		charObject.examine(param1)
 		if sender then sender:FireServer("success") end
-	elseif action == "operate" then
+	elseif action == "operate" then --picking up stuff with both hands
 		charInventory.unequipTools()
 		charObject.operate(param1,param2)
-	elseif action == "loadCharacter" then
+	elseif action == "loadCharacter" then --literlly set up a plain character
 		charRemote:FireServer("loadKit")
 		
 		charObject = charHandler.setup(player)
@@ -144,11 +144,11 @@ local function handleEvent(action,param1,param2,sender)
 	end
 end
 
-getCharObj.Event:Connect(function(action,param1,param2,sender)
+getCharObj.Event:Connect(function(action,param1,param2,sender) --local event connector
 	handleEvent(action,param1,param2,sender)
 end)
 
-charRemote.OnClientEvent:Connect(function(action,param1,param2,sender)
+charRemote.OnClientEvent:Connect(function(action,param1,param2,sender) --server invoked event connector
 	handleEvent(action,param1,param2,sender)
 end)
 

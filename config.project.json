@@ -12,8 +12,6 @@
             "Modules": {
                 "$className": "Folder",
                 
-                "factionKnowledgeHandler": { "$path": "Modules/factionKnowledgeHandler.luau" },
-                "README": { "$path": "Modules/README.luau" },
                 "CameraShakeInstance": { "$path": "Modules/CameraShake/CameraShakeInstance.luau" },
                 "CameraShakePresets": { "$path": "Modules/CameraShake/CameraShakePresets.luau" },
                 "CameraShaker": { "$path": "Modules/CameraShake/CameraShaker.luau" },
@@ -25,9 +23,13 @@
                 "damageHandler": { "$path": "Modules/CharacterHandlers/healthHandlers/damageHandler.luau" },
                 "healthHandler": { "$path": "Modules/CharacterHandlers/healthHandlers/healthHandler.luau" },
                 "statusEffects": { "$path": "Modules/CharacterHandlers/healthHandlers/statusEffects.luau" },
+                "chunkyCover": { "$path": "Modules/KITTYHandler/chunkyCover.luau" },
+                "KITTY": { "$path": "Modules/KITTYHandler/KITTY.luau" },
+                "KITTYBoard": { "$path": "Modules/KITTYHandler/KITTYBoard.luau" },
+                "KITTYTree": { "$path": "Modules/KITTYHandler/KITTYTree.luau" },
                 "ProjectileBase": { "$path": "Modules/WeaponHandlers/ProjectileBase.luau" },
                 "ProjectileHandler": { "$path": "Modules/WeaponHandlers/ProjectileHandler.luau" },
-                "sprintModule": { "$path": "Modules/WeaponHandlers/sprintModule.luau" },
+                "SpringModule": { "$path": "Modules/WeaponHandlers/SpringModule.luau" },
                 "weaponHandlerLocal": { "$path": "Modules/WeaponHandlers/weaponHandlerLocal.luau" }
             }
         },
