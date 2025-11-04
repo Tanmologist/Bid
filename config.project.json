@@ -27,8 +27,8 @@
                 "KITTY": { "$path": "Modules/KITTYHandler/KITTY.luau" },
                 "KITTYBoard": { "$path": "Modules/KITTYHandler/KITTYBoard.luau" },
                 "KITTYTree": { "$path": "Modules/KITTYHandler/KITTYTree.luau" },
-                "ProjectileBase": { "$path": "Modules/WeaponHandlers/ProjectileBase.luau" },
                 "ProjectileHandler": { "$path": "Modules/WeaponHandlers/ProjectileHandler.luau" },
+                "ProjectileHitBehavior": { "$path": "Modules/WeaponHandlers/ProjectileHitBehavior.luau" },
                 "SpringModule": { "$path": "Modules/WeaponHandlers/SpringModule.luau" },
                 "weaponHandlerLocal": { "$path": "Modules/WeaponHandlers/weaponHandlerLocal.luau" }
             }

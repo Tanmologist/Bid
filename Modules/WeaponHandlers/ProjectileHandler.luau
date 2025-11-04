@@ -1,29 +1,16 @@
-local handler = {}
+local projectileBehavior = require(script.Parent.ProjectileHitBehavior)
 
-local replicatedStorage = game:GetService("ReplicatedStorage")
-
-local remotes = replicatedStorage:WaitForChild("Remotes")
+local remotes = game.ReplicatedStorage:WaitForChild("Remotes")
 local hitregRemote = remotes:WaitForChild("hitregRemote")
-local suppressRemote = remotes:WaitForChild("suppressRemote")
 
+local handler = {}
+local projectiles = {}
 
-local damageHandler = require(game.ReplicatedStorage.Modules.damageHandler)
-local projectileBase = require(script.Parent.ProjectileBase)
+local Projectile = {}
+Projectile.__index = Projectile
 
-local function deepCopy(previous)
-	local copy = {}
-	for key, value in previous do
-		if type(value) == "table" then
-			value = deepCopy(value)
-		end
-		copy[key] = value
-	end
-	return copy
-end
-
-local function castHit(projectile,castOrigin,castDirection)
+local function castHit(sender,castOrigin,castDirection)
 	local raycastParams = RaycastParams.new()
-	local sender = workspace.ENTITIES:GetChildren()[projectile.senderID]
 	raycastParams.FilterDescendantsInstances = {sender}
 	while true do
 		local raycastResult = workspace:Raycast(castOrigin,castDirection,raycastParams)
@@ -42,121 +29,85 @@ local function castHit(projectile,castOrigin,castDirection)
 	end
 end
 
-local function onHit(projectile,raycastResult)
-	if raycastResult.Instance.Parent:FindFirstChildOfClass("Humanoid") then
-		local castInfo = {
-			baseDamage = projectile.baseDamage,
-			damageType = projectile.damageType,
-			headshotMultiplier = projectile.headshotMultiplier or 2.0,
-			limbshotMultiplier = projectile.limbshotMultiplier or 0.8,
-			shotDistance = (projectile.startPosition-raycastResult.Position).Magnitude
-		}
-		if raycastResult.Instance.Name == "Head" then
-			castInfo.shotLimb = "Head"
-		elseif raycastResult.Instance.Name == "Left Arm" or raycastResult.Instance.Name == "Right Arm" then
-			castInfo.shotLimb = "Arm"
-		elseif raycastResult.Instance.Name == "Left Leg" or raycastResult.Instance.Name == "Right Leg" then
-			castInfo.shotLimb = "Leg"
-		else
-			castInfo.shotLimb = "Torso"
-		end
-
-		damageHandler.castDamage(workspace.ENTITIES:GetChildren()[projectile.senderID],raycastResult.Instance.Parent,castInfo)
-	end
-end
-
-local function onStep(projectile,dt,index)
-	local currentPos = projectile.position
-	local nextPos = projectile.position + (projectile.velocity * dt)
-	--hitregRemote:FireAllClients("update",self)
-	local hitPart = castHit(projectile,currentPos,(projectile.velocity * dt))
-	if hitPart then
-		onHit(projectile,hitPart)
-		hitregRemote:FireAllClients("destroy",deepCopy(projectile),{hitPart.Position,hitPart.Normal,hitPart.Instance})
-		projectileBase.removeProjectile(index)
-		return hitPart
-	else
-		projectile.position = nextPos
-		projectile.lifetime -= dt
-		if projectile.lifetime <= 0 then
-			hitregRemote:FireAllClients("destroy",deepCopy(projectile),nil)
-			projectileBase.removeProjectile(index)
-			return "kill"
-		end
-	end 
-end
 
 
 
 
 
-
-
-
-
-
-
-
-function handler.new(startPosition:Vector3,castDirection:Vector3,projectileInfo:any)
-	local projectile = {
+function Projectile:New(startPosition:Vector3,castDirection:Vector3,projectileInfo:any)
+    local projectile = {
 		startPosition = startPosition,
-		
+
 		position = startPosition,
 		velocity = projectileInfo.velocity * castDirection.Unit,
+
 		baseDamage = projectileInfo.baseDamage,
 		damageType = projectileInfo.damageType,
 		headshotMultiplier = projectileInfo.headshotMultiplier or 2.0,
 		limbshotMultiplier = projectileInfo.limbshotMultiplier or 0.8,
 		suppression = projectileInfo.suppression or 10,
-		lifetime = 3,
+		lifetime = 2,
 		
-		modelID = projectileInfo.modelID,
-		senderID = 0,
-		senderName = projectileInfo.sender.Name
+		model = projectileInfo.model,
+		sender = projectileInfo.sender,
+		senderName = projectileInfo.sender.Name,
+		id = `p{workspace:GetServerTimeNow() * 1000}{math.random(1000, 9999)}`,
+
+		hitBehavior = projectileInfo.hitBehavior or "standard",
 	}
-	
-	for index, model in workspace.ENTITIES:GetChildren() do
-		if model == projectileInfo.sender then
-			projectile.senderID = index
+
+	local packet = {
+		id = projectile.id,
+		origin    = projectile.startPosition,
+		vel       = projectile.velocity,
+		t0        = workspace:GetServerTimeNow(),  -- global sync point
+		behaviour = projectile.hitBehavior,
+		senderID = projectile.sender.Name,
+		lifetime = projectile.lifetime
+	}
+	hitregRemote:FireAllClients("spawn", packet)
+
+    setmetatable(projectile, Projectile)
+    return projectile
+end
+
+function Projectile:Update(dt)
+    local currentPos = self.position
+	local nextPos = self.position + (self.velocity * dt)
+
+    local raycastResult = castHit(self.sender,currentPos,(self.velocity * dt))
+    if raycastResult then
+		local onHit = projectileBehavior.getServerBehavior("standard")
+		onHit(self,raycastResult)
+
+		hitregRemote:FireAllClients("landed", {
+			id   = self.id,
+			pos  = raycastResult.Position,
+			norm = raycastResult.Normal,
+			part = raycastResult.Instance
+		})
+		
+		projectiles[self.id] = nil
+	else
+		--normal update
+		self.position = nextPos
+		self.lifetime -= dt
+		if self.lifetime <= 0 then --projectile exists for too long
+			hitregRemote:FireAllClients("remove",{id = self.id})
+			projectiles[self.id] = nil
 		end
-	end
-	
-	projectileBase.addProjectile(projectile)
+	end 
 end
 
-function handler.onStep(dt)
-	local oldBase = projectileBase.getProjectiles()
-	for index, projectile in oldBase do
-
-		local hit = onStep(projectile,dt,index)
-		if hit == "kill" then
-			table.remove(oldBase,index)
-		elseif hit then
-			for index, rig in workspace.ENTITIES:GetChildren() do
-				local dist = (rig.HumanoidRootPart.Position - hit.Position).Magnitude
-				if rig:FindFirstChild("BehaviorHandler") and dist < projectile.suppression then
-					local sender = workspace.ENTITIES:GetChildren()[projectile.senderID]
-					rig.BehaviorHandler:FindFirstChildOfClass("Script").rigEvent:Fire("suppress",sender)
-				end
-			end
-			suppressRemote:FireAllClients(hit.Position,projectile.suppression)
-			
-			table.remove(oldBase,index)
-		end
+function handler.Update(dt)
+	for index,item in pairs(projectiles) do
+		item:Update(dt)
 	end
-	if #oldBase > 0 then handler.fireAllClients() end
-	
-	projectileBase.setProjectiles(oldBase)
 end
 
-function handler.fireAllClients()
-	local whowhee = {}
-	for index, projectile in projectileBase.getProjectiles() do
-		table.insert(whowhee,deepCopy(projectile))
-	end
-	
-	hitregRemote:FireAllClients("updateAll",whowhee)
+function handler.New(castOrigin,castDirection,castInfo)
+	local newProjectile = Projectile:New(castOrigin,castDirection,castInfo)
+	projectiles[newProjectile.id] = newProjectile
 end
-
 
 return handler

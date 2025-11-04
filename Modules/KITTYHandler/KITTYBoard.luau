@@ -27,6 +27,15 @@ end
 
 function KITTYBoard:Update(dt)
     self.time += dt
+
+    for name, event in self.worldEvents do
+        if event.expireAt <= self.time then self.worldEvents[name] = nil end
+    end
+end
+
+--have to allow multiple events to exist under the same name, like multiple firing sound instances, or do i have to? What are the chances of two people firing in the same frame.
+function KITTYBoard:addEvent(eventName,duration,eventOrigin,eventData)
+    self.worldEvents[eventName] = {expireAt = self.time + duration, origin = eventOrigin, data = eventData}
 end
 
 

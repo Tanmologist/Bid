@@ -39,7 +39,7 @@ runService.Heartbeat:Connect(function(dt) --update the minor functions of charOb
 	end
 end)
 
-runService:BindToRenderStep("characterUpdate",200,function(dt) --update cframe related functions of charObj
+runService:BindToRenderStep("characterUpdate",Enum.RenderPriority.Camera.Value+1,function(dt) --update cframe related functions of charObj
 	if charObject then
 		charObject.update(dt)
 		healthStatus.update(dt)
@@ -137,10 +137,6 @@ local function handleEvent(action,param1,param2,sender) --garbles
 		
 		charInventory = inventoryHandler.setup(charObject)
 		healthStatus = healthHandler.setup(charObject)
-		--charObject.GuiMain.debuggingStuff.Visible = true
-		--charObject.GuiMain.debuggingStuff.applyBleedingDebuff.Activated:Connect(function()
-		--	healthStatus.applyStatus("Bleeding")
-		--end)
 	end
 end
 

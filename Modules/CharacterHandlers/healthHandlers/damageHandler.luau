@@ -10,12 +10,13 @@ function handler.castDamage(dealer:Model,receiver:Model,castInfo:any)
 	local castDamge = castInfo.baseDamage
 	local finalDamage
 	local subjectHumanoid = receiver:FindFirstChildOfClass("Humanoid")
-	--headshot and limbshot multipliers not implemented yet
-	if castInfo.shotLimb == "Head" then
+
+	local damageZone = ({Head="Head";["Left Arm"]="Arm";["Right Arm"]="Arm";["Left Leg"]="Leg";["Right Leg"]="Leg"})[castInfo.shotLimb] or "Torso"
+	if damageZone == "Head" then
 		finalDamage = castDamge * castInfo.headshotMultiplier
-	elseif castInfo.shotLimb ~= "Torso" then
+	elseif damageZone == "Limb" then
 		finalDamage = castDamge * castInfo.limbshotMultiplier
-	else	
+	else
 		finalDamage = castDamge
 	end
 	

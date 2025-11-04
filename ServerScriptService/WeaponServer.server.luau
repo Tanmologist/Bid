@@ -14,7 +14,7 @@ hitregRemote.OnServerEvent:Connect(function(sender,castOrigin,castDirection,cast
 	else
 		castInfo.sender = sender
 	end
-	projectileHandler.new(castOrigin,castDirection,castInfo)
+	projectileHandler.New(castOrigin,castDirection,castInfo)
 end)
 
 weaponRemote.OnServerEvent:Connect(function(plr,action,weapon)
@@ -51,8 +51,7 @@ weaponRemote.OnServerEvent:Connect(function(plr,action,weapon)
 end)
 
 rs.Heartbeat:Connect(function(dt)
-	projectileHandler.onStep(dt)
-	projectileHandler.fireAllClients()
+	projectileHandler.Update(dt)
 end)
 
 local knowledgeHandler = require(game.ReplicatedStorage.Modules.factionKnowledgeHandler)

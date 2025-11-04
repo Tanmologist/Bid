@@ -44,14 +44,15 @@ local function bakeChunk(cx, cz)
                 local rayDir   = -dir * RAY_LEN
                 local goodHit  = nil
 
-                while not goodHit do          -- 3 attempts, 0.2 stud step
-                    local rayRes    = workspace:Raycast(origin, rayDir, params)
+                for attempt = 1, 3 do
+                    local rayRes = workspace:Raycast(origin, rayDir, params)
                     if rayRes then
                         local hit, p, n = rayRes.Instance, rayRes.Position, rayRes.Normal
-                        -- accept only solid, collidable, thick enough parts
                         if hit.Transparency < 0.01 and hit.CanCollide and hit.Size.Magnitude >= 0.5 then
                             goodHit = {pos = p + n * 0.5, normal = n}
                         end
+                    elseif not rayRes then
+                        break
                     end
                 end
 
